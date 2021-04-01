@@ -194,6 +194,8 @@ def eval(pth, th, ipt, opt):
     model.eval()
 
     while True:
+        if not os.path.exists(ipt):
+            continue
         x = Image.open(ipt).convert('RGB')
         y, feature_map, weight = predict(model, x, transform, device)
         cam = create_cam(feature_map, weight, y, th, device)
