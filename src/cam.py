@@ -196,7 +196,10 @@ def eval(pth, th, ipt, opt):
     while True:
         if not os.path.exists(ipt):
             continue
-        x = Image.open(ipt).convert('RGB')
+        try:
+            x = Image.open(ipt).convert('RGB')
+        except OSError:
+            continue
         y, feature_map, weight = predict(model, x, transform, device)
         print(y)
         cam = create_cam(feature_map, weight, y, th, device)
