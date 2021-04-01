@@ -116,13 +116,19 @@ def draw_cam(image, cam, out_path):
     im_cam.save(out_path)
 
 
+def get_model():
+    return nn.Sequential(Features(64), Head(64, 2))
+
 @click.group()
 def cli():
     pass
 
 
 @cli.command()
-def train():
+@click.option('--train_dir', default='../data/train')
+@click.option('--val_dir', default='../data/val')
+@click.option('--model_path', default='../models/model.pth')
+def train(train_dir, val_dir, model_path):
     train_transform = torchvision.transforms.Compose([
         torchvision.transforms.Resize((64, 64)),
         torchvision.transforms.RandomHorizontalFlip(),
@@ -135,15 +141,19 @@ def train():
         torchvision.transforms.ToTensor(),
     ])
 
-    train_dataset = PersonDataset('../data/train/person', 'data/train/background', train_transform)
+    train_dataset = PersonDataset(os.path.join(train_dir, 'person'),
+                                  os.path.join(train_dir, 'background'),
+                                  train_transform)
     train_dataloader = DataLoader(train_dataset, shuffle=True, batch_size=8)
 
-    val_dataset = PersonDataset('../data/val/person', 'data/val/background', val_transform)
+    val_dataset = PersonDataset(os.path.join(val_dir, 'person'),
+                                os.path.join(val_dir, 'background'),
+                                val_transform)
     val_dataloader = DataLoader(val_dataset, batch_size=8)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    model = nn.Sequential(Features(64), Head(64, 2))
+    model = get_model()
     model.to(device)
 
     criterion = nn.CrossEntropyLoss()
@@ -172,7 +182,7 @@ def train():
         print(1. - error / len(val_dataset))
 
     model.cpu()
-    torch.save(model.state_dict(), '../models/model.pth')
+    torch.save(model.state_dict(), model_path)
 
 
 @cli.command()
@@ -189,7 +199,7 @@ def eval(pth, th, ipt, opt, workdir):
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
-    model = nn.Sequential(Features(64), Head(64, 2))
+    model = get_model()
     model.load_state_dict(torch.load(pth))
     model.to(device)
     model.eval()
