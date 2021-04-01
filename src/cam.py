@@ -198,6 +198,7 @@ def eval(pth, th, ipt, opt):
             continue
         x = Image.open(ipt).convert('RGB')
         y, feature_map, weight = predict(model, x, transform, device)
+        print(y)
         cam = create_cam(feature_map, weight, y, th, device)
         draw_cam(x, cam, opt)
 
