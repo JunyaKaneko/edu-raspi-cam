@@ -203,7 +203,7 @@ def eval(pth, th, ipt, opt):
             continue
         y, feature_map, weight = predict(model, x, transform, device)
         cam = create_cam(feature_map, weight, y, th, device)
-        open('/tmp/cam_lock')
+        open('/tmp/cam_lock', 'w').close()
         draw_cam(x, cam, opt)
         os.remove('/tmp/cam_lock')
 
