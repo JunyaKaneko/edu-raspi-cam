@@ -135,10 +135,10 @@ def train():
         torchvision.transforms.ToTensor(),
     ])
 
-    train_dataset = PersonDataset('data/train/person', 'data/train/background', train_transform)
+    train_dataset = PersonDataset('../data/train/person', 'data/train/background', train_transform)
     train_dataloader = DataLoader(train_dataset, shuffle=True, batch_size=8)
 
-    val_dataset = PersonDataset('data/val/person', 'data/val/background', val_transform)
+    val_dataset = PersonDataset('../data/val/person', 'data/val/background', val_transform)
     val_dataloader = DataLoader(val_dataset, batch_size=8)
 
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -172,7 +172,7 @@ def train():
         print(1. - error / len(val_dataset))
 
     model.cpu()
-    torch.save(model.state_dict(), 'models/model.pth')
+    torch.save(model.state_dict(), '../models/model.pth')
 
 
 @cli.command()
@@ -194,7 +194,6 @@ def eval(pth, th, ipt, opt):
     model.eval()
 
     while True:
-        print('eval')
         x = Image.open(ipt).convert('RGB')
         y, feature_map, weight = predict(model, x, transform, device)
         cam = create_cam(feature_map, weight, y, th, device)
