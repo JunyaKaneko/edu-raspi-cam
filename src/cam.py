@@ -27,6 +27,7 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 import torchvision
 import click
+import time
 
 
 class PersonDataset(Dataset):
@@ -204,6 +205,7 @@ def eval(pth, th, ipt, opt):
         print(y)
         cam = create_cam(feature_map, weight, y, th, device)
         draw_cam(x, cam, opt)
+        time.sleep(0.05)
 
 
 if __name__ == '__main__':
