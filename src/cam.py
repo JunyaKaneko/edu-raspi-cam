@@ -202,6 +202,7 @@ def eval(pth, th, ipt, opt):
         except OSError:
             continue
         y, feature_map, weight = predict(model, x, transform, device)
+        print(y)
         cam = create_cam(feature_map, weight, y, th, device)
         open('/tmp/cam_lock', 'w').close()
         draw_cam(x, cam, opt)
