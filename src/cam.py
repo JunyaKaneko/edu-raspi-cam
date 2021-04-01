@@ -27,7 +27,6 @@ import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
 import torchvision
 import click
-import time
 
 
 class PersonDataset(Dataset):
@@ -181,7 +180,8 @@ def train():
 @click.option('--th', default=0.5)
 @click.option('--ipt')
 @click.option('--opt')
-def eval(pth, th, ipt, opt):
+@click.option('--workdir', default='/tmp')
+def eval(pth, th, ipt, opt, workdir):
     transform = torchvision.transforms.Compose([
         torchvision.transforms.Resize((64, 64)),
         torchvision.transforms.ToTensor(),
@@ -194,6 +194,7 @@ def eval(pth, th, ipt, opt):
     model.to(device)
     model.eval()
 
+    cam_lock = os.path.join(workdir, 'cam_lock')
     while True:
         if not os.path.exists(ipt):
             continue
@@ -202,11 +203,10 @@ def eval(pth, th, ipt, opt):
         except OSError:
             continue
         y, feature_map, weight = predict(model, x, transform, device)
-        print(y)
         cam = create_cam(feature_map, weight, y, th, device)
-        open('/tmp/cam_lock', 'w').close()
+        open(cam_lock, 'w').close()
         draw_cam(x, cam, opt)
-        os.remove('/tmp/cam_lock')
+        os.remove(cam_lock)
 
 
 if __name__ == '__main__':
